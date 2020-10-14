@@ -1,0 +1,4537 @@
+import { CodeSurfer as Surfer, CodeSurferColumns, Step } from "code-surfer";
+import "prismjs/components/prism-java"
+import { Appear, Background } from "gatsby-theme-mdx-deck";
+import customTheme from "../src/theme";
+import * as L from "../src/layout";
+import Database from '../components/Database'
+import Developer from '../components/Developer'
+import Attention from '../components/Attention'
+import Done from '../components/Done'
+import Alert from '../components/Alert'
+import RightArrow from '../components/RightArrow'
+import Gears from '../components/Gears'
+import Controller from '../components/Controller'
+import Request from '../components/Request'
+import Thinking from '../assets/thinking.jpg';
+import BusinessManThinking from '../assets/BusinessManThinking.jpg';
+import Pretender from '../assets/Pretender.jpg';
+import Mockito from '../assets/Mockito.png';
+import Perfil from '../assets/perfil.png';
+import DTO from '../components/DTO';
+import { ZoomSteps } from '../components/ZoomSteps'
+import { FaGithub } from 'react-icons/fa';
+import { FaLinkedinIn } from 'react-icons/fa';
+import { SiGmail } from 'react-icons/si';
+export const theme = customTheme;
+
+<L.Column sx={{ minHeight: '60%', ml: 5 }}>
+
+# Testes e2e com Spring boot
+
+<L.Column sx={{ fontSize: ".5em", width: "140%" }}>
+
+## Escrevendo software confiável com testes
+
+</L.Column>
+
+<L.Column>
+
+### By `Wellington Gustavo Macedo`
+
+</L.Column>
+
+</L.Column>
+
+---
+
+<L.Column>
+
+# The speaker
+
+<div style={{display: "flex"}}>
+
+<img src={Perfil} style={{height: "220px", borderRadius: "10px"}}  />
+
+- Ex Javeiro, Atual Kotlinzeiro
+- Desenvolvedor do Mercado Livre
+- Ama codar
+
+</div>
+
+<div style={{width: "100%", display: "flex", "justifyContent": "flex-end"}}>
+<a href="https://github.com/wellington3110" target="_blank" style={{cursor: "pointer", color: "black"}}> 
+    <FaGithub style={{"fontSize": "30px", "marginRight": "5px"}}/> 
+</a>
+<a href="https://www.linkedin.com/in/wgmacedo/" target="_blank" style={{cursor: "pointer"}}>
+    <FaLinkedinIn style={{"fontSize": "30px", color: "rgb(0, 127, 177)", "marginRight": "5px"}}/>
+</a>
+<a href="mailto:wellingtongustavomacedo@gmail.com" target="_blank" style={{cursor: "pointer"}}>
+    <SiGmail style={{"fontSize": "30px", color: "red"}}/>
+</a>
+</div>
+
+</L.Column>
+
+---
+
+<L.Column>
+
+## Sobre esse workshop
+
+- Será testado uma _aplicação rest_
+- A stack do _spring é fortemente usada_, então é um pré-requisito para entender os exemplos!
+- Sinta-se a vontade para _perguntar a qualquer momento!_
+
+</L.Column>
+
+---
+
+## O que é teste e2e?
+
+<L.Column sx={{"alignItems": "center"}}>
+
+<img style={{height: "100%", position: "relative", right: "60px"}} src={Thinking} />
+</L.Column>
+
+---
+
+## Fluxo de request
+
+<L.Row sx={{"justifyContent": "flex-start", "top": "-15px"}}>
+<ZoomSteps>
+    <Request />
+    <RightArrow />
+    <Controller />
+    <RightArrow />
+    <Gears />
+    <RightArrow />
+    <Database />
+    </ZoomSteps>
+</L.Row>
+
+---
+
+## Fluxo de response
+
+<L.Row sx={{"justifyContent": "flex-start", "top": "-15px"}}>
+<ZoomSteps>
+    <Database />
+    <RightArrow />
+    <Gears />
+    <RightArrow />
+    <Controller />
+    <RightArrow />
+    <Request />
+</ZoomSteps>
+</L.Row>
+
+---
+
+<Background />
+
+<L.Row>
+<Attention style={{height: "200px"}}/>
+
+### E porque testes e2e são importantes?
+
+</L.Row>
+
+---
+
+<L.Column>
+
+## Reproduz o funcionamento real da aplicação 
+
+</L.Column>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+# Mãos à obra
+<Developer style={{height: "170px"}}/>
+
+</L.Column>
+
+---
+
+<L.Column>
+
+## Ferramentas utilizadas
+
+- Spring boot
+- Mockito
+- Faker
+- Spring data 
+- H2 Database
+- Bean validator
+- JUnit
+- Lombok
+
+</L.Column>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+# DTOs
+
+<DTO style={{height: "170px"}}/>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java
+@Data
+@With
+@AllArgsConstructor
+@NoArgsConstructor
+public class CreateUserDTO {
+
+    private String cpf;
+    private String name;
+    private String email;
+    private String address;
+    private LocalDate birthDate;
+
+    public UserEntity toEntity() {
+        return new UserEntity()
+            .setCpf(cpf)
+            .setName(name)
+            .setEmail(email)
+            .setAddress(address)
+            .setBirthDate(birthDate);
+    }
+}
+```
+
+```java
+@Data
+public class UserDTO {
+
+    private Long id;
+    private String cpf;
+    private String name;
+    private String email;
+    private String address;
+    private LocalDate birthDate;
+
+    public static UserDTO fromEntity(UserEntity entity) {
+        return new UserDTO()
+            .setId(entity.getId())
+            .setCpf(entity.getCpf())
+            .setName(entity.getName())
+            .setBirthDate(entity.getBirthDate())
+            .setAddress(entity.getAddress())
+            .setEmail(entity.getEmail());
+    }
+
+    public static UserDTO fromDTO(CreateUserDTO dto, Long id) {
+        return new UserDTO()
+            .setId(id)
+            .setCpf(dto.getCpf())
+            .setName(dto.getName())
+            .setBirthDate(dto.getBirthDate())
+            .setAddress(dto.getAddress())
+            .setEmail(dto.getEmail());
+    }
+}
+```
+
+```java
+@Data
+@NoArgsConstructor
+public class ErrorDTO {
+
+    private String code;
+    private Map<String, String> causes = new HashMap<>();
+
+    public ErrorDTO(String code, List<ErrorCause> errorCauses) {
+        this.code = code;
+        this.causes = errorCauses.stream().collect(toMap(ErrorCause::field, ErrorCause::cause));
+    }
+
+    public ErrorDTO addError(String field, String cause) {
+        causes.put(field, cause);
+        return this;
+    }
+}
+```
+
+</Surfer>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+# Controller 
+<Controller showLegend={false} style={{height: "170px"}}/>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java 1:3 file="../codes/initial/Controller.java"
+```
+
+```java 5:6 file="../codes/initial/Controller.java"
+```
+
+```java 13:14 file="../codes/initial/Controller.java" title='Endpoint para criar novos usuários'
+```
+
+```java 15 file="../codes/initial/Controller.java"
+```
+
+```java 16:17 file="../codes/initial/Controller.java" title='O header ficará: "Location: user/{id}"'
+```
+
+```java 18 file="../codes/initial/Controller.java" title='O header ficará: "Location-Id: {id}"'
+```
+
+```java 22:23 file="../codes/initial/Controller.java" title='Endpoint para recuperar usuários pelo seu id'
+```
+
+```java 24 file="../codes/initial/Controller.java"
+```
+
+```java 25:26 file="../codes/initial/Controller.java"
+```
+
+```java 27 file="../codes/initial/Controller.java"
+```
+
+```java 28 file="../codes/initial/Controller.java"
+```
+
+</Surfer>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+# Service 
+<Gears showLegend={false} style={{height: "170px"}}/>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java 1:2 file="../codes/initial/Service.java"
+```
+
+```java 4 file="../codes/initial/Service.java"
+```
+
+```java 11:14 file="../codes/initial/Service.java"
+```
+
+```java 12 file="../codes/initial/Service.java"
+```
+
+```java 16:29 file="../codes/initial/Service.java"
+```
+
+```java 17:23 file="../codes/initial/Service.java"
+```
+
+```java 44:62 file="../codes/initial/Service.java"
+```
+
+```java 44[40:61] file="../codes/initial/Service.java" title="Disponibiliza o método validate"
+```
+
+```java 46:48 file="../codes/initial/Service.java"
+```
+
+```java 50:52 file="../codes/initial/Service.java"
+```
+
+```java 54:56 file="../codes/initial/Service.java"
+```
+
+```java 58:59 file="../codes/initial/Service.java"
+```
+
+```java 61:62 file="../codes/initial/Service.java"
+```
+
+```java 48,52,56 file="../codes/initial/Service.java" title="Os campos obrigatórios"
+```
+
+```java 23 file="../codes/initial/Service.java"
+```
+
+```java 17[9:37] file="../codes/initial/Service.java"
+```
+
+```java 24 file="../codes/initial/Service.java"
+```
+
+```java 31:34 file="../codes/initial/Service.java"
+```
+
+```java 32 file="../codes/initial/Service.java"
+```
+
+```java 33 file="../codes/initial/Service.java"
+```
+
+```java 35 file="../codes/initial/Service.java"
+```
+
+```java 25 file="../codes/initial/Service.java"
+```
+
+```java 26:28 file="../codes/initial/Service.java"
+```
+
+```java 26:28 file="../codes/initial/Service.java" title='A validação é atômica'
+```
+
+```java 13 file="../codes/initial/Service.java"
+```
+
+```java 38:40 file="../codes/initial/Service.java"
+```
+
+</Surfer>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+# Repositório 
+<Database showLegend={false} style={{height: "170px"}}/>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java 1:2 file="../codes/initial/Repository.java"
+```
+
+```java 4 file="../codes/initial/Repository.java"
+```
+
+</Surfer>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+# Exception handler 
+<Controller showLegend={false} style={{height: "170px"}}/>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java 1:2 file="../codes/initial/ExceptionHandler.java"
+```
+
+```java 4 file="../codes/initial/ExceptionHandler.java"
+```
+
+```java 5 file="../codes/initial/ExceptionHandler.java"
+```
+
+```java 6 file="../codes/initial/ExceptionHandler.java"
+```
+
+</Surfer>
+
+---
+
+<L.Column sx={{"alignItems": "center"}}>
+
+## Relembrando
+- CPF deve ser único
+- CPF deve ter um formato válido
+- Nome deve ter entre _3 e 90 caracteres_
+- Endereço deve ter _5 e 254 caracteres_
+- Data de nascimento _não pode estar no futuro_
+- Campos obrigatórios: nome, data de nascimento e CPF
+- E-mail deve ter um formato válido
+- Validação deve ser _atômica_
+- Deve retornar o status code _201_ caso usuário criado com sucesso
+- Deve retornar o status code _200_ caso usuário retornado com sucesso
+- Deve retornar o status code _404_ caso não exista o usuário solicitado
+- Deve retornar o status code _400_ caso erro de validação
+
+</L.Column>
+
+---
+
+<L.Column>
+
+## Escrevendo os testes
+
+<Appear>
+
+### Preparem-se para o primeiro live code da história a dar certo! 😹😹
+
+<p> <b>OBS: </b>Os códigos a seguir foram todos escritos no src de teste. </p>
+
+</Appear>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java
+public abstract class AbstractIT {
+}
+```
+
+```java 1 title="Adicona o Spring no contexto de test do JUnit 5"
+@ExtendWith(SpringExtension.class)
+public abstract class AbstractIT {
+}
+```
+
+```java 2 title="SpringBootTest configura o spring para subir a aplicação no teste"
+@ExtendWith(SpringExtension.class)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public abstract class AbstractIT {
+}
+```
+
+</Surfer>
+
+---
+
+<Surfer>
+
+```java
+public class UserApiClient {
+```
+
+```java 1
+@Component
+public class UserApiClient {
+```
+
+```java 4
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+}
+```
+
+```java 6:7
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+}
+```
+
+```java 9
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+}
+```
+
+```java 9[58:79] title="O response type é importante aqui quando a resposta for um erro"
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+}
+```
+
+```java 10
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+        return restTemplate.postForEntity(RESOURCE, dto, responseType);
+    }
+}
+```
+
+```java 9
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public ResponseEntity<Void> save(CreateUserDTO dto) {
+        return save(dto, Void.class);
+    }
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+        return restTemplate.postForEntity(RESOURCE, dto, responseType);
+    }
+}
+```
+
+```java 10
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public ResponseEntity<Void> save(CreateUserDTO dto) {
+        return save(dto, Void.class);
+    }
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+        return restTemplate.postForEntity(RESOURCE, dto, responseType);
+    }
+}
+```
+
+```java 17
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public ResponseEntity<Void> save(CreateUserDTO dto) {
+        return save(dto, Void.class);
+    }
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+        return restTemplate.postForEntity(RESOURCE, dto, responseType);
+    }
+
+    public ResponseEntity<UserDTO> getById(Long id) {
+}
+```
+
+```java 18
+@Component
+public class UserApiClient {
+
+    private static final String RESOURCE = "/user";
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    public ResponseEntity<Void> save(CreateUserDTO dto) {
+        return save(dto, Void.class);
+    }
+
+    public <T> ResponseEntity<T> save(CreateUserDTO dto, Class<T> responseType) {
+        return restTemplate.postForEntity(RESOURCE, dto, responseType);
+    }
+
+    public ResponseEntity<UserDTO> getById(Long id) {
+        return restTemplate.getForEntity(RESOURCE + "/" + id, UserDTO.class);
+    }
+}
+```
+
+</Surfer>
+
+---
+
+<Surfer>
+
+```java
+class UserIT extends AbstractIT {
+}
+```
+
+```java 3
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+}
+```
+
+```java 5:6
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+}
+```
+
+```java 8:10
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+
+    }
+}
+```
+
+```java 11:16 title="Criando o usuário com todos os campos preenchidos"
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+    }
+}
+```
+
+```java 17
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    }
+}
+```
+
+```java 18
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    }
+}
+```
+
+```java 19 title="Aqui é criado um UserDTO, que é DTO retornado do endpoint get by id"
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    }
+}
+```
+
+```java 20
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    }
+}
+```
+
+```java 21
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    }
+}
+```
+
+```java 22
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}> Teste salvando e recuperando usuário com todos os campos </h3>
+
+</L.Row>
+
+---
+
+<Surfer>
+
+```java
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+}
+```
+
+```java 25:27
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+
+    }
+}
+```
+
+```java 27:31
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+    }
+}
+```
+
+```java 32
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    }
+}
+```
+
+```java 33
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    }
+}
+```
+
+```java 34
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    }
+}
+```
+
+```java 35
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    }
+}
+```
+
+```java 36
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    }
+}
+```
+
+```java 37
+class UserIT extends AbstractIT {
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+        assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+        assertThat(respGetById.getBody()).isEqualTo(savedUser);
+    }
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}> Teste salvando e recuperando usuário com apenas os campos requeridos </h3>
+
+</L.Row>
+
+---
+
+<div style={{ display: "flex", flexDirection: "column" }}>
+    <p style={{ color: "rgb(253, 71, 85)", fontSize:"40px" }}>Alerta de código duplicado!!!</p>
+    <Alert style={{ height: "200px" }} />
+</div>
+
+---
+
+<CodeSurferColumns>
+
+<Step>
+
+```java
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    assertThat(respGetById.getBody()).isEqualTo(savedUser);
+}
+```
+
+```java
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.name().fullName())
+        .setBirthDate(LocalDate.now());
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    assertThat(respGetById.getBody()).isEqualTo(savedUser);
+}
+```
+
+</Step>
+
+<Step>
+
+```java 10:15
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    assertThat(respGetById.getBody()).isEqualTo(savedUser);
+}
+```
+
+```java 8:13
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.name().fullName())
+        .setBirthDate(LocalDate.now());
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    assertThat(respGetById.getBody()).isEqualTo(savedUser);
+}
+```
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+<Surfer>
+
+```java
+ResponseEntity<Void> resp = userApiClient.save(userToSave);
+assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+assertThat(respGetById.getBody()).isEqualTo(savedUser);
+```
+
+```java
+ private void assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    assertThat(respGetById.getBody()).isEqualTo(savedUser);
+}
+```
+
+```java 5:7
+ private void assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    ResponseEntity<UserDTO> respGetById = userApiClient.getById(savedUser.getId());
+    assertThat(respGetById.getStatusCode()).isEqualTo(OK);
+    assertThat(respGetById.getBody()).isEqualTo(savedUser);
+}
+```
+
+```java
+ private void assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+    ResponseEntity<Void> resp = userApiClient.save(userToSave);
+    assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+    UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+    assertGetByID(savedUser);
+}
+
+private void assertGetByID(UserDTO expected) {
+    ResponseEntity<UserDTO> resp = userApiClient.getById(expected.getId());
+    assertThat(resp.getStatusCode()).isEqualTo(OK);
+    assertThat(resp.getBody()).isEqualTo(expected);
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}> Código refatorado </h3>
+
+</L.Row>
+
+---
+
+<Surfer>
+
+```java 10
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(userToSave);
+}
+
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.name().fullName())
+        .setBirthDate(LocalDate.now());
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java 19
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(userToSave);
+}
+
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.name().fullName())
+        .setBirthDate(LocalDate.now());
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+}
+```
+
+```java 4:9
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+}
+```
+
+```java 10
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+}
+```
+
+```java 11 title="É criado um usuário a partir do usuário salvo com um e-mail inválido"
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+}
+```
+
+```java 12:15
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+}
+```
+
+```java 16
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(invalidUser, ErrorDTO.class);
+}
+```
+
+```java 17
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(invalidUser, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+}
+```
+
+```java 18
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(invalidUser, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(expectedError);
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}> Teste validando regras de validação de e-mail e cpf único</h3>
+
+</L.Row>
+
+---
+
+<Surfer>
+
+```java 1:3
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+}
+```
+
+```java 4:9
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+}
+```
+
+```java 10:16
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+}
+```
+
+```java 17
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+}
+```
+
+```java 18
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+}
+```
+
+```java 19
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(expectedError);
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}> Teste validando as regras de validação do endereço, nome, cpf, e-mail e data de nascimento</h3>
+
+</L.Row>
+
+---
+
+<div style={{ display: "flex", flexDirection: "column" }}>
+    <p style={{ color: "rgb(253, 71, 85)", fontSize:"40px" }}>Alerta de código duplicado!!!</p>
+    <Alert style={{ height: "200px" }} />
+</div>
+
+---
+
+<CodeSurferColumns>
+
+<Step>
+
+```java
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(invalidUser, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(expectedError);
+}
+```
+
+```java
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(expectedError);
+}
+```
+
+</Step>
+
+<Step>
+
+```java 16:18
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(invalidUser, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(expectedError);
+}
+```
+
+```java 17:19
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(expectedError);
+}
+```
+
+</Step>
+
+</CodeSurferColumns>
+
+---
+
+<Surfer>
+
+```java
+ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+assertThat(resp.getBody()).isEqualTo(expectedError);
+```
+
+```java
+private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+    assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+    assertThat(resp.getBody()).isEqualTo(error);
+}
+```
+
+```java 16
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    assertValidationError(userToSave, expectedError);
+}
+
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    assertValidationError(userToSave, expectedError);
+}
+```
+
+```java 35
+@Test
+@DisplayName("Error to save user with invalid e-mail and repeated cpf")
+void invalidEmailAndRepeatedCpf() {
+    CreateUserDTO validUser = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(validUser);
+    CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("email", "must be a well-formed email address")
+        .addError("cpf", "value already registered");
+    assertValidationError(userToSave, expectedError);
+}
+
+@Test
+@DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+void invalidEmailAddressNameCpfAndBirthDate() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setEmail("Goku > Naruto")
+        .setAddress("_")
+        .setCpf("bolacha ou biscoito?")
+        .setName("_")
+        .setBirthDate(LocalDate.now().plusDays(1));
+     ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("address", "size must be between 5 and 254")
+        .addError("name", "size must be between 3 and 90")
+        .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+        .addError("email", "must be a well-formed email address")
+        .addError("birthDate", "must be a date in the past or in the present");
+    assertValidationError(userToSave, expectedError);
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}> Código refatorado </h3>
+
+</L.Row>
+
+---
+
+<Surfer>
+
+```java
+@Test
+@DisplayName("Error to save user without any field filled")
+void noFieldFilled() {
+}
+```
+
+```java 4
+@Test
+@DisplayName("Error to save user without any field filled")
+void noFieldFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO();
+}
+```
+
+```java 5:9
+@Test
+@DisplayName("Error to save user without any field filled")
+void noFieldFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO();
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("name", "must not be blank")
+        .addError("cpf", "must not be null")
+        .addError("birthDate", "must not be null");
+}
+```
+
+```java 10
+@Test
+@DisplayName("Error to save user without any field filled")
+void noFieldFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO();
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("name", "must not be blank")
+        .addError("cpf", "must not be null")
+        .addError("birthDate", "must not be null");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+}
+```
+
+```java 11
+@Test
+@DisplayName("Error to save user without any field filled")
+void noFieldFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO();
+    ErrorDTO expectedError = new ErrorDTO()
+        .setCode(ValidationException.CODE_ERROR)
+        .addError("name", "must not be blank")
+        .addError("cpf", "must not be null")
+        .addError("birthDate", "must not be null");
+    ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+    assertValidationError(userToSave, expectedError);
+}
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}>Testado campos obrigatórios</h3>
+
+</L.Row>
+
+---
+
+<L.Column sx={{ width: "110%"}}>
+
+## Foi solicitado agora que ...
+
+</L.Column>
+
+---
+
+<L.Column>
+
+## Toda vez que um novo usuário for cadastrado deve:
+
+<Appear>
+
+- Gerar um evento chamado _"UserRegisteredEvent"_
+- Esse evento deve ser publicado em outro sistema via _chamada HTTP_
+
+</Appear>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java 
+@Getter
+@ToString
+@EqualsAndHashCode
+public abstract class Event {
+
+    @With
+    private final UUID id;
+    private final String type;
+
+    protected Event(UUID id, String type) {
+        this.id = id;
+        this.type = type;
+    }
+}
+```
+
+```java 1:10
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class UserRegisteredEvent extends Event {
+
+    private static final String TYPE = "UserRegistered";
+
+    private final String name;
+    private final String cpf;
+    private final String email;
+
+    @Builder
+    private UserRegisteredEvent(UUID id, String name, String cpf, String email) {
+        super(id, TYPE);
+        this.name = name;
+        this.cpf = cpf;
+        this.email = email;
+    }
+
+    public static UserRegisteredEvent from(UserEntity user) {
+        return UserRegisteredEvent
+            .builder()
+            .name(user.getName())
+            .cpf(user.getCpf())
+            .email(user.getEmail())
+            .build();
+    }
+
+    @Override
+    public Event withId(UUID id) {
+        return new UserRegisteredEvent(id, name, cpf, email);
+    }
+}
+```
+
+```java 12:33
+@Getter
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
+public class UserRegisteredEvent extends Event {
+
+    private static final String TYPE = "UserRegistered";
+
+    private final String name;
+    private final String cpf;
+    private final String email;
+
+    @Builder
+    private UserRegisteredEvent(UUID id, String name, String cpf, String email) {
+        super(id, TYPE);
+        this.name = name;
+        this.cpf = cpf;
+        this.email = email;
+    }
+
+    public static UserRegisteredEvent from(UserEntity user) {
+        return UserRegisteredEvent
+            .builder()
+            .name(user.getName())
+            .cpf(user.getCpf())
+            .email(user.getEmail())
+            .build();
+    }
+
+    @Override
+    public Event withId(UUID id) {
+        return new UserRegisteredEvent(id, name, cpf, email);
+    }
+}
+```
+
+```java
+@Repository
+public class EventRepositoryHttp implements EventRepository {
+
+    private String uri;
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public EventRepositoryHttp(@Value("${publisher.uri}") String uri, RestTemplate restTemplate) {
+        this.uri = uri;
+        this.restTemplate = restTemplate;
+    }
+
+    @Override
+    public void publish(Event event) {
+        restTemplate.postForEntity(uri, event, String.class);
+    }
+}
+```
+
+```java 4:5
+@Repository
+public class EventRepositoryHttp implements EventRepository {
+
+    private String uri;
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public EventRepositoryHttp(@Value("${publisher.uri}") String uri, RestTemplate restTemplate) {
+        this.uri = uri;
+        this.restTemplate = restTemplate;
+    }
+
+    @Override
+    public void publish(Event event) {
+        restTemplate.postForEntity(uri, event, String.class);
+    }
+}
+```
+
+```java 14
+@Repository
+public class EventRepositoryHttp implements EventRepository {
+
+    private String uri;
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public EventRepositoryHttp(@Value("${publisher.uri}") String uri, RestTemplate restTemplate) {
+        this.uri = uri;
+        this.restTemplate = restTemplate;
+    }
+
+    @Override
+    public void publish(Event event) {
+        restTemplate.postForEntity(uri, event, String.class);
+    }
+}
+```
+
+```java 15
+@Repository
+public class EventRepositoryHttp implements EventRepository {
+
+    private String uri;
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public EventRepositoryHttp(@Value("${publisher.uri}") String uri, RestTemplate restTemplate) {
+        this.uri = uri;
+        this.restTemplate = restTemplate;
+    }
+
+    @Override
+    public void publish(Event event) {
+        restTemplate.postForEntity(uri, event, String.class);
+    }
+}
+```
+
+```java
+@Service
+public class EventService {
+
+    private final UUIDGenerator uuidGenerator;
+    private final EventRepository repository;
+
+    @Autowired
+    public EventService(UUIDGenerator uuidGenerator, EventRepository repository) {
+        this.uuidGenerator = uuidGenerator;
+        this.repository = repository;
+    }
+
+    public void publish(Event event) {
+        repository.publish(event.withId(uuidGenerator.generate()));
+    }
+}
+```
+
+```java 4:5
+@Service
+public class EventService {
+
+    private final UUIDGenerator uuidGenerator;
+    private final EventRepository repository;
+
+    @Autowired
+    public EventService(UUIDGenerator uuidGenerator, EventRepository repository) {
+        this.uuidGenerator = uuidGenerator;
+        this.repository = repository;
+    }
+
+    public void publish(Event event) {
+        repository.publish(event.withId(uuidGenerator.generate()));
+    }
+}
+```
+
+```java 13
+@Service
+public class EventService {
+
+    private final UUIDGenerator uuidGenerator;
+    private final EventRepository repository;
+
+    @Autowired
+    public EventService(UUIDGenerator uuidGenerator, EventRepository repository) {
+        this.uuidGenerator = uuidGenerator;
+        this.repository = repository;
+    }
+
+    public void publish(Event event) {
+        repository.publish(event.withId(uuidGenerator.generate()));
+    }
+}
+```
+
+```java 14
+@Service
+public class EventService {
+
+    private final UUIDGenerator uuidGenerator;
+    private final EventRepository repository;
+
+    @Autowired
+    public EventService(UUIDGenerator uuidGenerator, EventRepository repository) {
+        this.uuidGenerator = uuidGenerator;
+        this.repository = repository;
+    }
+
+    public void publish(Event event) {
+        repository.publish(event.withId(uuidGenerator.generate()));
+    }
+}
+```
+
+
+```java 2
+@Service
+public class UserService implements Loggable {
+
+    private final UserRepository userRepository;
+    private final UserTelemetry userTelemetry;
+    private final EventService eventService;
+
+    @Autowired
+    public UserService(UserRepository userRepository, UserTelemetry userTelemetry, EventService eventService) {
+        this.userRepository = userRepository;
+        this.userTelemetry = userTelemetry;
+        this.eventService = eventService;
+    }
+
+    public Optional<UserEntity> getById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public UserEntity save(UserEntity user) {
+        validate(user);
+        UserEntity savedUser = userRepository.save(user);
+        saveEvent(UserRegisteredEvent.from(savedUser));
+        return savedUser;
+    }
+
+    private void saveEvent(Event event) {
+        try {
+            eventService.publish(event);
+        } catch (Exception e) {
+            userTelemetry.errorToSaveEvent(event, e);
+        }
+    }
+```
+
+```java 22
+@Service
+public class UserService implements Loggable {
+
+    private final UserRepository userRepository;
+    private final UserTelemetry userTelemetry;
+    private final EventService eventService;
+
+    @Autowired
+    public UserService(UserRepository userRepository, UserTelemetry userTelemetry, EventService eventService) {
+        this.userRepository = userRepository;
+        this.userTelemetry = userTelemetry;
+        this.eventService = eventService;
+    }
+
+    public Optional<UserEntity> getById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public UserEntity save(UserEntity user) {
+        validate(user);
+        UserEntity savedUser = userRepository.save(user);
+        saveEvent(UserRegisteredEvent.from(savedUser));
+        return savedUser;
+    }
+
+    private void saveEvent(Event event) {
+        try {
+            eventService.publish(event);
+        } catch (Exception e) {
+            userTelemetry.errorToSaveEvent(event, e);
+        }
+    }
+```
+
+```java 28
+@Service
+public class UserService implements Loggable {
+
+    private final UserRepository userRepository;
+    private final UserTelemetry userTelemetry;
+    private final EventService eventService;
+
+    @Autowired
+    public UserService(UserRepository userRepository, UserTelemetry userTelemetry, EventService eventService) {
+        this.userRepository = userRepository;
+        this.userTelemetry = userTelemetry;
+        this.eventService = eventService;
+    }
+
+    public Optional<UserEntity> getById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public UserEntity save(UserEntity user) {
+        validate(user);
+        UserEntity savedUser = userRepository.save(user);
+        saveEvent(UserRegisteredEvent.from(savedUser));
+        return savedUser;
+    }
+
+    private void saveEvent(Event event) {
+        try {
+            eventService.publish(event);
+        } catch (Exception e) {
+            userTelemetry.errorToSaveEvent(event, e);
+        }
+    }
+```
+
+```java 29:30
+@Service
+public class UserService implements Loggable {
+
+    private final UserRepository userRepository;
+    private final UserTelemetry userTelemetry;
+    private final EventService eventService;
+
+    @Autowired
+    public UserService(UserRepository userRepository, UserTelemetry userTelemetry, EventService eventService) {
+        this.userRepository = userRepository;
+        this.userTelemetry = userTelemetry;
+        this.eventService = eventService;
+    }
+
+    public Optional<UserEntity> getById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public UserEntity save(UserEntity user) {
+        validate(user);
+        UserEntity savedUser = userRepository.save(user);
+        saveEvent(UserRegisteredEvent.from(savedUser));
+        return savedUser;
+    }
+
+    private void saveEvent(Event event) {
+        try {
+            eventService.publish(event);
+        } catch (Exception e) {
+            userTelemetry.errorToSaveEvent(event, e);
+        }
+    }
+```
+
+</Surfer>
+
+---
+
+<L.Column>
+
+## E agora, como testar isso?
+
+<img style={{height: "75%"}} src={BusinessManThinking} />
+
+</L.Column>
+
+---
+
+<L.Column sx={{ width: "120%" }}>
+
+## Uma possibilidade é utilizar:
+
+# Mocks
+
+</L.Column>
+
+---
+
+<L.Column sx={{ width: "120%" }}>
+
+## Mas o que é mock?
+
+<img style={{height: "75%", alignSelf: "center"}} src={Pretender} />
+
+</L.Column>
+
+---
+
+<img style={{height: "75%", alignSelf: "center"}} src={Mockito} />
+
+---
+
+<L.Column>
+
+## Mas porque o mockito?
+
+- Ferramenta amplamente utilizada pela comunidade Java
+- Altamente integrado com o Spring
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java title="Exemplo de uso"
+LinkedList mockedList = mock(LinkedList.class);
+```
+
+```java title="Mockando uma Linked List"
+LinkedList mockedList = mock(LinkedList.class);
+```
+
+```java 2[1:24]
+LinkedList mockedList = mock(LinkedList.class);
+when(mockedList.get(0)).thenReturn("first");
+```
+
+```java 2[25:45]
+LinkedList mockedList = mock(LinkedList.class);
+when(mockedList.get(0)).thenReturn("first");
+```
+
+```java 3
+LinkedList mockedList = mock(LinkedList.class);
+when(mockedList.get(0)).thenReturn("first");
+System.out.println(mockedList.get(0)); // imprime "first"
+```
+
+```java 4
+LinkedList mockedList = mock(LinkedList.class);
+when(mockedList.get(0)).thenReturn("first");
+System.out.println(mockedList.get(0)); // imprime "first"
+System.out.println(mockedList.get(999)); // imprime "null"
+```
+
+</Surfer>
+
+---
+
+## Deve ser garantido através dos mocks que:
+
+- O evento foi _enviado corretamente_
+- O evento _não foi enviado_ nos fluxos de erro
+
+---
+
+<Surfer>
+
+```java title="É necessário mockar dois componentes do código"
+```
+
+```java 4
+@Service
+public class EventService {
+
+    private final UUIDGenerator uuidGenerator;
+    private final EventRepository repository;
+
+    @Autowired
+    public EventService(UUIDGenerator uuidGenerator, EventRepository repository) {
+        this.uuidGenerator = uuidGenerator;
+        this.repository = repository;
+    }
+
+    public void publish(Event event) {
+        repository.publish(event.withId(uuidGenerator.generate()));
+    }
+}
+```
+
+```java 5
+@Repository
+public class EventRepositoryHttp implements EventRepository {
+
+    private String uri;
+    private final RestTemplate restTemplate;
+
+    @Autowired
+    public EventRepositoryHttp(@Value("${publisher.uri}") String uri, RestTemplate restTemplate) {
+        this.uri = uri;
+        this.restTemplate = restTemplate;
+    }
+
+    @Override
+    public void publish(Event event) {
+        restTemplate.postForEntity(uri, event, String.class);
+    }
+}
+```
+
+```java 1 title="Vamos criar os testes agora"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 11:12
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 14:15
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 11,14 title="O que é esse MockBean?"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 11,14 title="Agora vamos garantir que o evento está sendo enviado corretamente"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 17
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 18:19
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 19[9:39]
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 19[40:65]
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 17:20 title="Garantimos que o UUID gerado sempre será o mesmo!"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+```
+
+```java 31
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        return assertGetByID(savedUser);
+    }
+```
+
+```java 41
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        return assertGetByID(savedUser);
+    }
+```
+
+```java 44:49
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        return assertGetByID(savedUser);
+    }
+```
+
+```java 48
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        return assertGetByID(savedUser);
+    }
+```
+
+```java 52:60
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        return assertGetByID(savedUser);
+    }
+
+    private UserRegisteredEvent toEvent(UserDTO savedUser) {
+        return UserRegisteredEvent
+            .builder()
+            .id(DEFAULT_UUID)
+            .cpf(savedUser.getCpf())
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .build();
+    }
+```
+
+```java 55 title="Usamos o DEFAULT_ID que foi mockado!"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        return assertGetByID(savedUser);
+    }
+
+    private UserRegisteredEvent toEvent(UserDTO savedUser) {
+        return UserRegisteredEvent
+            .builder()
+            .id(DEFAULT_UUID)
+            .cpf(savedUser.getCpf())
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .build();
+    }
+```
+
+```java 49 title="Agora checamos o mock"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        verify(restTemplate).postForEntity(PUBLISHER_URI, expectedEvent, String.class);
+        return assertGetByID(savedUser);
+    }
+
+    private UserRegisteredEvent toEvent(UserDTO savedUser) {
+        return UserRegisteredEvent
+            .builder()
+            .id(DEFAULT_UUID)
+            .cpf(savedUser.getCpf())
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .build();
+    }
+```
+
+```java 49[9:29]
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        verify(restTemplate).postForEntity(PUBLISHER_URI, expectedEvent, String.class);
+        return assertGetByID(savedUser);
+    }
+
+    private UserRegisteredEvent toEvent(UserDTO savedUser) {
+        return UserRegisteredEvent
+            .builder()
+            .id(DEFAULT_UUID)
+            .cpf(savedUser.getCpf())
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .build();
+    }
+```
+
+```java 49[30:88]
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        verify(restTemplate).postForEntity(PUBLISHER_URI, expectedEvent, String.class);
+        return assertGetByID(savedUser);
+    }
+
+    private UserRegisteredEvent toEvent(UserDTO savedUser) {
+        return UserRegisteredEvent
+            .builder()
+            .id(DEFAULT_UUID)
+            .cpf(savedUser.getCpf())
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .build();
+    }
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}>Testado o envio correto dos eventos!</h3>
+
+</L.Row>
+
+---
+
+<Surfer>
+
+```java 1 title="Agora queremos garantir que os eventos não sejam enviados nos fluxos de erro!"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Save and get user with all fields filled successfully")
+    void allFieldsFilledProperly() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    @Test
+    @DisplayName("Save and get user with just required fields filled successfully")
+    void requiredFieldsFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.name().fullName())
+            .setBirthDate(LocalDate.now());
+        assertSaveUserSuccessfully(userToSave);
+    }
+
+    private UserDTO assertSaveUserSuccessfully(CreateUserDTO userToSave) {
+        ResponseEntity<Void> resp = userApiClient.save(userToSave);
+        assertThat(resp.getStatusCode()).isEqualTo(CREATED);
+        UserDTO savedUser = UserDTO.fromDTO(userToSave, getUserId(resp));
+        UserRegisteredEvent expectedEvent = toEvent(savedUser);
+        verify(restTemplate).postForEntity(PUBLISHER_URI, expectedEvent, String.class);
+        return assertGetByID(savedUser);
+    }
+
+    private UserRegisteredEvent toEvent(UserDTO savedUser) {
+        return UserRegisteredEvent
+            .builder()
+            .id(DEFAULT_UUID)
+            .cpf(savedUser.getCpf())
+            .email(savedUser.getEmail())
+            .name(savedUser.getName())
+            .build();
+    }
+```
+
+```java 32
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+```
+
+```java 52
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+```
+
+```java 70
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+```
+
+```java 73:77
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+
+    private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+        assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(resp.getBody()).isEqualTo(error);
+    }
+```
+
+```java 75
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+
+    private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+        verifyNoMoreInteractions(restTemplate);
+        assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(resp.getBody()).isEqualTo(error);
+    }
+```
+
+```java 75 title="Mas porque verifyNoMoreInteractions?"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+
+    private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+        verifyNoMoreInteractions(restTemplate);
+        assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(resp.getBody()).isEqualTo(error);
+    }
+```
+
+```java 75 title="Para garantir que os testes possam fazer alguma verificação antes"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+
+    private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+        verifyNoMoreInteractions(restTemplate);
+        assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(resp.getBody()).isEqualTo(error);
+    }
+```
+
+```java 56 title="O teste de CPF repetido é um bom exemplo"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+
+    private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+        verifyNoMoreInteractions(restTemplate);
+        assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(resp.getBody()).isEqualTo(error);
+    }
+```
+
+```java 64 title="Dentro desse assert é feito um verify do primeiro usuário salvo"
+class UserIT extends AbstractIT {
+
+    private static String PUBLISHER_URI = "http://mock.publisher/publish";
+    private static UUID DEFAULT_UUID = UUID.randomUUID();
+
+    private final Faker faker = new Faker();
+
+    @Autowired
+    private UserApiClient userApiClient;
+
+    @MockBean
+    private RestTemplate restTemplate;
+
+    @MockBean
+    private UUIDGenerator uuidGenerator;
+
+    @BeforeEach
+    void setUp() {
+        when(uuidGenerator.generate()).thenReturn(DEFAULT_UUID);
+    }
+
+    @Test
+    @DisplayName("Error to save user without any field filled")
+    void noFieldFilled() {
+        CreateUserDTO userToSave = new CreateUserDTO();
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("name", "must not be blank")
+            .addError("cpf", "must not be null")
+            .addError("birthDate", "must not be null");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail, address, name, cpf and birth date")
+    void invalidEmailAddressNameCpfAndBirthDate() {
+        CreateUserDTO userToSave = new CreateUserDTO()
+            .setEmail("Goku > Naruto")
+            .setAddress("_")
+            .setCpf("bolacha ou biscoito?")
+            .setName("_")
+            .setBirthDate(LocalDate.now().plusDays(1));
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("address", "size must be between 5 and 254")
+            .addError("name", "size must be between 3 and 90")
+            .addError("cpf", "invalid Brazilian individual taxpayer registry number (CPF)")
+            .addError("email", "must be a well-formed email address")
+            .addError("birthDate", "must be a date in the past or in the present");
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(userToSave, ErrorDTO.class);
+        assertValidationError(userToSave, expectedError);
+    }
+
+    @Test
+    @DisplayName("Error to save user with invalid e-mail and repeated cpf")
+    void invalidEmailAndRepeatedCpf() {
+        CreateUserDTO validUser = new CreateUserDTO()
+            .setCpf(CPF.generate())
+            .setName(faker.howIMetYourMother().character())
+            .setBirthDate(LocalDate.now())
+            .setAddress(faker.address().fullAddress())
+            .setEmail(faker.internet().emailAddress());
+        assertSaveUserSuccessfully(validUser);
+        CreateUserDTO invalidUser = validUser.withEmail("ronaldo");
+        ErrorDTO expectedError = new ErrorDTO()
+            .setCode(ValidationException.CODE_ERROR)
+            .addError("email", "must be a well-formed email address")
+            .addError("cpf", "value already registered");
+        assertValidationError(invalidUser, expectedError);
+    }
+
+    private void assertValidationError(CreateUserDTO user, ErrorDTO error) {
+        ResponseEntity<ErrorDTO> resp = userApiClient.save(user, ErrorDTO.class);
+        verifyNoMoreInteractions(restTemplate);
+        assertThat(resp.getStatusCode()).isEqualTo(BAD_REQUEST);
+        assertThat(resp.getBody()).isEqualTo(error);
+    }
+```
+
+</Surfer>
+
+---
+
+<Background />
+
+<L.Row>
+<Done style={{height: "200px"}}/>
+
+<h3 style={{color: "gray"}}>Testado o não envio de eventos nos fluxos de erro!</h3>
+
+</L.Row>
+
+---
+
+<L.Column>
+
+## Mas ainda tem como melhorar o código de teste?
+
+<img style={{height: "75%"}} src={BusinessManThinking} />
+
+</L.Column>
+
+---
+
+<L.Column>
+
+# Sempre tem né 😂😂
+
+</L.Column>
+
+---
+
+<L.Column>
+
+# Test Data Builder 
+
+<Appear>
+
+- É um pattern
+- E auxilia na construção de dados para os testes
+
+</Appear>
+
+</L.Column>
+
+---
+
+<Surfer>
+
+```java
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java 4:9 title="O que estamos tentando querer dizer aqui?"
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.howIMetYourMother().character())
+        .setBirthDate(LocalDate.now())
+        .setAddress(faker.address().fullAddress())
+        .setEmail(faker.internet().emailAddress());
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java 4 title="Poderíamos fazer assim"
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    CreateUserDTO validUser = createValidUser();
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java 4
+@Test
+@DisplayName("Save and get user with all fields filled successfully")
+void allFieldsFilledProperly() {
+    assertSaveUserSuccessfully(createValidUser());
+}
+```
+
+```java
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.name().fullName())
+        .setBirthDate(LocalDate.now());
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java 4:7 title="O que estamos tentando querer dizer aqui?"
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO userToSave = new CreateUserDTO()
+        .setCpf(CPF.generate())
+        .setName(faker.name().fullName())
+        .setBirthDate(LocalDate.now());
+    assertSaveUserSuccessfully(userToSave);
+}
+```
+
+```java 4
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    CreateUserDTO minimumValidUserToSave = createMinimumValidUserToSave();
+    assertSaveUserSuccessfully(minimumValidUserToSave);
+}
+```
+
+```java 4
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    assertSaveUserSuccessfully(createMinimumValidUserToSave());
+}
+```
+
+```java 4 title="Esse código de construção deve estar em uma classe separada"
+@Test
+@DisplayName("Save and get user with just required fields filled successfully")
+void requiredFieldsFilled() {
+    assertSaveUserSuccessfully(createMinimumValidUserToSave());
+}
+```
+
+```java
+public class UserDataFactory {
+}
+```
+
+```java
+public class UserDataFactory {
+    public static CreateUserDTO createValidUser() {...}
+}
+```
+
+```java
+public class UserDataFactory {
+    public static CreateUserDTO createValidUser() {...}
+
+    public static CreateUserDTO createMinimumValidUserToSave() {...}
+}
+```
+
+```java
+public class UserDataFactory {
+    public static CreateUserDTO createValidUser() {...}
+
+    public static CreateUserDTO createMinimumValidUserToSave() {...}
+
+    // outro métodos
+}
+```
+
+</Surfer>
+
+---
+
+<L.Column>
+
+# Test Data Builder Conclusão
+
+<Appear>
+
+- Deixa os testes mais clean
+- Melhora a legibilidade do código
+- Possibilita reutilizar o código de construção de dados entre os testes
+
+</Appear>
+
+</L.Column>
+
+---
+
+<L.Column>
+
+# Testes e2e  Conclusão
+
+</L.Column>
+
+---
+
+<L.Column>
+
+## Vantagens
+
+<Appear>
+
+- Garante o funcionamento da aplicação como um todo
+- Consegue simular o mesmo comportamento do sistema em produção
+- Auxilia em refactors maiores
+- Pode ser escrito em uma linguagem diferente da do código de produção
+
+</Appear>
+
+</L.Column>
+
+---
+
+<L.Column>
+
+## Desvantagens
+
+<Appear>
+
+- São lentos para serem executados
+- Depedendo do tamanho do teste pode ser díficil saber exatamente aonde está o erro
+- Necessita de muito código de configuração
+
+</Appear>
+
+</L.Column>
+
+---
+
+<L.Column>
+
+# Testes E2E 
+## VS
+# Testes Unitários
+
+</L.Column>
+
+---
+
+<Background />
+
+# Dúvidas?
+
+---

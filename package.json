@@ -1,0 +1,26 @@
+{
+  "name": "testworkshop-presentation",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "gatsby develop",
+    "clean": "gatsby clean",
+    "build": "gatsby build"
+  },
+  "devDependencies": {
+    "@emotion/core": "^10.0.21",
+    "@mdx-js/react": "^1.6.18",
+    "@philpl/gatsby-theme-mdx-deck": "^3.1.10",
+    "code-surfer": "3.1.1",
+    "gatsby": "^2.17.1",
+    "gatsby-plugin-netlify": "^2.1.22",
+    "prism-react-renderer": "^1.0.2",
+    "prismjs": "^1.17.1",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
+    "react-social-icons": "^4.1.0",
+    "react-spring": "^8.0.27",
+    "theme-ui": "^0.2.44"
+  }
+}
