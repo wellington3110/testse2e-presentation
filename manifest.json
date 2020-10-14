@@ -1,0 +1,9 @@
+{
+  "main.js": "render-page.js",
+  "main.js.map": "render-page.js.map",
+  "static/BusinessManThinking.jpg": "static/BusinessManThinking-10ff192001e9e3a1719afec82f51f5ab.jpg",
+  "static/Mockito.png": "static/Mockito-ef0eb8bf20578a1541ae334104e205f6.png",
+  "static/Pretender.jpg": "static/Pretender-87bca5c1e7afd493f9bffa5b4d42e17e.jpg",
+  "static/perfil.png": "static/perfil-f0d8125ffaafa942ab1fa93471f8ed14.png",
+  "static/thinking.jpg": "static/thinking-463932244ba8ade1a589873724441e11.jpg"
+}
